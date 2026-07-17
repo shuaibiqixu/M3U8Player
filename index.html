@@ -6,24 +6,16 @@
 <title>M3U8 Player</title>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #08080a;
-    --surface: #111114;
-    --surface2: #18181c;
-    --border: #222228;
-    --accent: #6c63ff;
-    --accent-dim: rgba(108,99,255,0.12);
-    --green: #34d399;
-    --green-dim: rgba(52,211,153,0.12);
-    --red: #f87171;
-    --red-dim: rgba(248,113,113,0.12);
-    --text: #e8e6f0;
-    --text-dim: #5c5a66;
-    --radius: 12px;
-    --font-ui: 'Instrument Sans', -apple-system, 'PingFang SC', sans-serif;
-    --font-mono: 'DM Mono', 'SF Mono', monospace;
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --border: #222;
+    --accent: #3b82f6;
+    --text: #eee;
+    --text-dim: #666;
+    --radius: 10px;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -31,7 +23,7 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: var(--font-ui);
+    font-family: 'Inter', -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif;
     min-height: 100vh;
     min-height: 100dvh;
     -webkit-font-smoothing: antialiased;
@@ -39,53 +31,37 @@
     overscroll-behavior: none;
   }
 
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-    opacity: 0.025;
-    pointer-events: none;
-    z-index: 0;
-  }
-
   .app {
-    position: relative;
-    z-index: 1;
     max-width: 600px;
     margin: 0 auto;
     padding: 0 16px;
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 32px);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
   }
 
   /* ── Header ── */
   .header {
-    padding: 20px 0 16px;
+    padding: 16px 0 12px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
   }
-
-  .logo-mark {
-    width: 28px; height: 28px;
-    background: var(--accent);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .logo-mark svg { width: 14px; height: 14px; fill: #fff; }
 
   .header h1 {
-    font-size: 1.05rem;
-    font-weight: 700;
-    letter-spacing: -0.03em;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
   }
 
-  .header h1 span {
-    color: var(--text-dim);
-    font-weight: 400;
-    margin-left: 4px;
-    font-size: 0.75rem;
+  .header .dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s ease infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
   }
 
   /* ── Player ── */
@@ -93,11 +69,10 @@
     position: relative;
     width: 100%;
     aspect-ratio: 16 / 9;
-    background: #050507;
+    background: #000;
     border-radius: var(--radius);
     overflow: hidden;
     margin-bottom: 16px;
-    border: 1px solid var(--border);
   }
 
   .player-box video {
@@ -110,29 +85,28 @@
     position: absolute; inset: 0;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    gap: 12px; background: rgba(5,5,7,0.92);
-    transition: opacity 0.35s ease; z-index: 2;
+    gap: 10px; background: #111;
+    transition: opacity 0.3s; z-index: 2;
   }
   .player-mask.hidden { opacity: 0; pointer-events: none; }
 
   .player-mask .icon {
-    width: 48px; height: 48px;
-    border: 2px solid var(--border); border-radius: 50%;
+    width: 40px; height: 40px;
+    border: 2px solid #333; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
   }
-  .player-mask .icon svg { width: 18px; height: 18px; fill: var(--text-dim); margin-left: 2px; }
-  .player-mask span { font-size: 0.75rem; color: var(--text-dim); font-weight: 500; }
+  .player-mask .icon svg { width: 16px; height: 16px; fill: #555; margin-left: 2px; }
+  .player-mask span { font-size: 0.72rem; color: #444; }
 
   .player-loader {
     position: absolute; inset: 0;
     display: none; align-items: center; justify-content: center;
-    background: rgba(5,5,7,0.6); z-index: 3;
+    background: rgba(0,0,0,0.5); z-index: 3;
   }
   .player-loader.active { display: flex; }
-
   .spinner {
-    width: 30px; height: 30px;
-    border: 3px solid rgba(255,255,255,0.06);
+    width: 28px; height: 28px;
+    border: 3px solid rgba(255,255,255,0.08);
     border-top-color: var(--accent);
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
@@ -147,54 +121,53 @@
     padding: 4px;
     margin-bottom: 12px;
     gap: 4px;
-    border: 1px solid var(--border);
   }
 
   .mode-btn {
     flex: 1;
     padding: 10px 0;
-    font-family: var(--font-ui);
-    font-size: 0.78rem;
-    font-weight: 600;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 500;
     color: var(--text-dim);
     background: transparent;
     border: none;
     border-radius: calc(var(--radius) - 4px);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    letter-spacing: -0.01em;
   }
 
   .mode-btn.active {
     background: var(--accent);
     color: #fff;
-    box-shadow: 0 2px 12px rgba(108,99,255,0.3);
   }
 
-  .mode-btn svg { width: 14px; height: 14px; fill: currentColor; }
+  .mode-btn svg {
+    width: 14px; height: 14px;
+    fill: currentColor;
+  }
 
   /* ── Input Area ── */
   .input-area {
     background: var(--surface);
     border-radius: var(--radius);
-    padding: 16px;
+    padding: 14px;
     margin-bottom: 12px;
-    border: 1px solid var(--border);
   }
 
   .input-area.hidden { display: none; }
 
   .field-label {
     font-size: 0.65rem;
-    font-weight: 600;
+    font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     color: var(--text-dim);
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
 
   .field-input {
@@ -202,18 +175,18 @@
     width: 100%;
     background: var(--bg);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 13px 14px;
+    border-radius: 8px;
+    padding: 12px;
     color: var(--text);
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
+    font-family: inherit;
+    font-size: 0.84rem;
     outline: none;
-    transition: border-color 0.2s;
+    transition: border-color 0.15s;
     -webkit-appearance: none;
   }
 
   .field-input:focus { border-color: var(--accent); }
-  .field-input::placeholder { color: #2a2a30; }
+  .field-input::placeholder { color: #333; }
 
   .field-textarea {
     display: block;
@@ -222,26 +195,25 @@
     resize: vertical;
     background: var(--bg);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px;
+    border-radius: 8px;
+    padding: 12px;
     color: var(--text);
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    line-height: 1.7;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.74rem;
+    line-height: 1.6;
     outline: none;
-    transition: border-color 0.2s;
+    transition: border-color 0.15s;
     -webkit-appearance: none;
   }
 
   .field-textarea:focus { border-color: var(--accent); }
-  .field-textarea::placeholder { color: #2a2a30; }
+  .field-textarea::placeholder { color: #333; }
 
   .field-hint {
     font-size: 0.68rem;
     color: var(--text-dim);
-    margin-top: 8px;
-    opacity: 0.5;
-    font-weight: 500;
+    margin-top: 6px;
+    opacity: 0.6;
   }
 
   /* ── Actions ── */
@@ -251,232 +223,33 @@
   }
 
   .btn {
-    padding: 14px 0;
-    font-family: var(--font-ui);
-    font-size: 0.82rem;
-    font-weight: 600;
+    flex: 1;
+    padding: 13px 0;
+    font-family: inherit;
+    font-size: 0.84rem;
+    font-weight: 500;
     border-radius: var(--radius);
     border: none;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.15s;
     -webkit-tap-highlight-color: transparent;
-    letter-spacing: -0.01em;
   }
 
   .btn-play {
-    flex: 1;
     background: var(--accent);
     color: #fff;
-    box-shadow: 0 2px 16px rgba(108,99,255,0.25);
   }
 
-  .btn-play:active { transform: scale(0.97); opacity: 0.9; }
-
-  .btn-download {
-    flex: 1;
-    background: var(--green-dim);
-    color: var(--green);
-    border: 1px solid rgba(52,211,153,0.15);
-  }
-
-  .btn-download:active { transform: scale(0.97); }
+  .btn-play:active { transform: scale(0.97); opacity: 0.85; }
 
   .btn-stop {
-    flex: 0 0 72px;
-    background: var(--surface2);
+    background: var(--surface);
     color: var(--text-dim);
     border: 1px solid var(--border);
+    flex: 0 0 80px;
   }
 
   .btn-stop:active { transform: scale(0.97); }
-
-  /* ── Download Panel ── */
-  .dl-panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px;
-    margin-bottom: 12px;
-    display: none;
-    animation: slideDown 0.3s ease;
-  }
-
-  .dl-panel.visible { display: block; }
-
-  @keyframes slideDown {
-    from { opacity: 0; transform: translateY(-8px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .dl-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
-  }
-
-  .dl-title {
-    font-size: 0.78rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .dl-title .dl-dot {
-    width: 8px; height: 8px;
-    background: var(--green);
-    border-radius: 50%;
-    animation: pulse 1.5s ease infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.8); }
-  }
-
-  .dl-cancel {
-    font-family: var(--font-ui);
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: var(--red);
-    background: var(--red-dim);
-    border: 1px solid rgba(248,113,113,0.15);
-    border-radius: 8px;
-    padding: 6px 14px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .dl-cancel:active { transform: scale(0.96); }
-
-  .dl-progress-bar {
-    width: 100%;
-    height: 6px;
-    background: var(--bg);
-    border-radius: 3px;
-    overflow: hidden;
-    margin-bottom: 12px;
-  }
-
-  .dl-progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--green));
-    border-radius: 3px;
-    transition: width 0.3s ease;
-    width: 0%;
-  }
-
-  .dl-stats {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .dl-stats-left {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    color: var(--text-dim);
-  }
-
-  .dl-stats-left strong {
-    color: var(--text);
-    font-weight: 500;
-  }
-
-  .dl-stats-right {
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    color: var(--text-dim);
-  }
-
-  /* ── Download Complete ── */
-  .dl-complete {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-  }
-
-  .dl-complete-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .dl-check {
-    width: 32px; height: 32px;
-    background: var(--green-dim);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .dl-check svg { width: 16px; height: 16px; fill: var(--green); }
-
-  .dl-complete-text {
-    font-size: 0.78rem;
-    font-weight: 500;
-  }
-
-  .dl-complete-text small {
-    display: block;
-    font-size: 0.68rem;
-    color: var(--text-dim);
-    font-weight: 400;
-    margin-top: 2px;
-    font-family: var(--font-mono);
-  }
-
-  .dl-save {
-    font-family: var(--font-ui);
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: #fff;
-    background: var(--green);
-    border: none;
-    border-radius: 10px;
-    padding: 10px 20px;
-    cursor: pointer;
-    transition: all 0.15s;
-    flex-shrink: 0;
-  }
-
-  .dl-save:active { transform: scale(0.96); }
-
-  /* ── Decryption badge ── */
-  .dl-decrypt-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 0.62rem;
-    font-weight: 600;
-    color: var(--accent);
-    background: var(--accent-dim);
-    border-radius: 4px;
-    padding: 2px 8px;
-    margin-top: 8px;
-    font-family: var(--font-mono);
-    letter-spacing: 0.03em;
-  }
-
-  /* ── Error list in panel ── */
-  .dl-errors {
-    margin-top: 10px;
-    padding: 10px 12px;
-    background: var(--red-dim);
-    border: 1px solid rgba(248,113,113,0.1);
-    border-radius: 8px;
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    color: var(--red);
-    line-height: 1.6;
-    max-height: 100px;
-    overflow-y: auto;
-    display: none;
-  }
-
-  .dl-errors.visible { display: block; }
 
   /* ── Toast ── */
   .toast {
@@ -485,10 +258,9 @@
     left: 16px; right: 16px;
     max-width: 568px;
     margin: 0 auto;
-    padding: 14px 18px;
+    padding: 12px 16px;
     border-radius: var(--radius);
     font-size: 0.78rem;
-    font-weight: 500;
     opacity: 0;
     transform: translateY(12px);
     pointer-events: none;
@@ -504,21 +276,20 @@
   }
 
   .toast.error {
-    background: var(--red-dim);
-    border: 1px solid rgba(248,113,113,0.15);
-    color: var(--red);
+    background: #1a1111;
+    border: 1px solid #3d1f1f;
+    color: #f87171;
   }
 
   .toast.ok {
-    background: var(--green-dim);
-    border: 1px solid rgba(52,211,153,0.15);
-    color: var(--green);
+    background: #111a11;
+    border: 1px solid #1f3d1f;
+    color: #4ade80;
   }
 
-  /* ── Responsive ── */
   @media (min-width: 601px) {
-    .app { padding-top: 24px; }
-    .player-box { border-radius: 14px; }
+    .app { padding-top: 20px; }
+    .player-box { border-radius: 12px; }
   }
 </style>
 </head>
@@ -526,10 +297,8 @@
 
 <div class="app">
   <header class="header">
-    <div class="logo-mark">
-      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-    </div>
-    <h1>M3U8 Player <span>v2</span></h1>
+    <div class="dot"></div>
+    <h1>M3U8 Player</h1>
   </header>
 
   <div class="player-box">
@@ -565,47 +334,8 @@
     <div class="field-hint">所有 URI 须为完整绝对地址</div>
   </div>
 
-  <!-- Download Progress Panel -->
-  <div class="dl-panel" id="dlPanel">
-    <div id="dlProgressArea">
-      <div class="dl-header">
-        <div class="dl-title">
-          <div class="dl-dot"></div>
-          正在下载
-        </div>
-        <button class="dl-cancel" id="dlCancel">取消</button>
-      </div>
-      <div class="dl-progress-bar">
-        <div class="dl-progress-fill" id="dlFill"></div>
-      </div>
-      <div class="dl-stats">
-        <div class="dl-stats-left">
-          <strong id="dlCount">0</strong> / <span id="dlTotal">0</span> 分片
-        </div>
-        <div class="dl-stats-right" id="dlSize">0 MB</div>
-      </div>
-      <div id="dlDecryptBadge" class="dl-decrypt-badge" style="display:none;">
-        AES-128 解密中
-      </div>
-      <div class="dl-errors" id="dlErrors"></div>
-    </div>
-    <div class="dl-complete" id="dlComplete" style="display:none;">
-      <div class="dl-complete-info">
-        <div class="dl-check">
-          <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
-        </div>
-        <div class="dl-complete-text">
-          下载完成
-          <small id="dlFinalSize">0 MB</small>
-        </div>
-      </div>
-      <button class="dl-save" id="dlSave">保存文件</button>
-    </div>
-  </div>
-
   <div class="actions">
     <button class="btn btn-play" id="btnPlay">播放</button>
-    <button class="btn btn-download" id="btnDownload">下载</button>
     <button class="btn btn-stop" id="btnStop">停止</button>
   </div>
 </div>
@@ -616,49 +346,33 @@
 (function () {
   'use strict';
 
-  var video      = document.getElementById('video');
-  var mask       = document.getElementById('mask');
-  var loader     = document.getElementById('loader');
-  var toastEl    = document.getElementById('toast');
-  var inpUrl     = document.getElementById('inp-url');
-  var inpText    = document.getElementById('inp-text');
-  var btnPlay    = document.getElementById('btnPlay');
-  var btnStop    = document.getElementById('btnStop');
-  var btnDl      = document.getElementById('btnDownload');
-  var dlPanel    = document.getElementById('dlPanel');
-  var dlFill     = document.getElementById('dlFill');
-  var dlCount    = document.getElementById('dlCount');
-  var dlTotal    = document.getElementById('dlTotal');
-  var dlSize     = document.getElementById('dlSize');
-  var dlCancel   = document.getElementById('dlCancel');
-  var dlErrors   = document.getElementById('dlErrors');
-  var dlProgressArea = document.getElementById('dlProgressArea');
-  var dlComplete = document.getElementById('dlComplete');
-  var dlFinalSize = document.getElementById('dlFinalSize');
-  var dlSave     = document.getElementById('dlSave');
-  var dlDecryptBadge = document.getElementById('dlDecryptBadge');
+  var video   = document.getElementById('video');
+  var mask    = document.getElementById('mask');
+  var loader  = document.getElementById('loader');
+  var toastEl = document.getElementById('toast');
+  var inpUrl  = document.getElementById('inp-url');
+  var inpText = document.getElementById('inp-text');
+  var btnPlay = document.getElementById('btnPlay');
+  var btnStop = document.getElementById('btnStop');
 
   var hls = null;
   var mode = 'url';
   var toastTimer = null;
   var blobUrls = [];
-  var dlAbort = null;       // AbortController
-  var dlResultBlob = null;  // final blob for save
-  var dlFileName = 'stream.ts';
-  var downloading = false;
 
-  /* ── Mode switch ── */
+  /* Mode switch */
   window.switchMode = function (name, btn) {
     mode = name;
     var btns = document.querySelectorAll('.mode-btn');
     for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
     btn.classList.add('active');
+
     var areas = document.querySelectorAll('.input-area');
     for (var j = 0; j < areas.length; j++) areas[j].classList.add('hidden');
     document.getElementById('area-' + name).classList.remove('hidden');
   };
 
-  /* ── Toast ── */
+  /* Toast */
   function showToast(msg, type) {
     toastEl.textContent = msg;
     toastEl.className = 'toast ' + (type || 'error') + ' visible';
@@ -674,7 +388,7 @@
     blobUrls = [];
   }
 
-  /* ── HLS core ── */
+  /* HLS core */
   function onParsed() {
     showLoading(false);
     mask.classList.add('hidden');
@@ -704,6 +418,7 @@
     cleanup();
     showLoading(true);
     mask.classList.remove('hidden');
+
     if (Hls.isSupported()) {
       hls = new Hls({ maxBufferLength: 30 });
       hls.loadSource(url);
@@ -726,23 +441,25 @@
     cleanup();
     showLoading(true);
     mask.classList.remove('hidden');
+
     if (!Hls.isSupported()) {
       showLoading(false);
       showToast('文本模式需要现代浏览器', 'error');
       return;
     }
+
     var blob    = new Blob([text], { type: 'application/vnd.apple.mpegurl' });
     var blobUrl = URL.createObjectURL(blob);
     blobUrls.push(blobUrl);
+
     hls = new Hls({ maxBufferLength: 30 });
     hls.loadSource(blobUrl);
     hls.attachMedia(video);
     bindHls(hls);
   }
 
-  /* ── Play ── */
+  /* Play */
   btnPlay.addEventListener('click', function () {
-    if (downloading) { showToast('请先取消下载', 'error'); return; }
     if (mode === 'url') {
       var url = inpUrl.value.trim();
       if (!url) { showToast('请输入链接', 'error'); return; }
@@ -751,13 +468,14 @@
       var txt = inpText.value.trim();
       if (!txt) { showToast('请粘贴 M3U8 文本', 'error'); return; }
       if (txt.indexOf('#EXTM3U') === -1) {
-        showToast('缺少 #EXTM3U 标记', 'error'); return;
+        showToast('缺少 #EXTM3U 标记', 'error');
+        return;
       }
       playText(txt);
     }
   });
 
-  /* ── Stop ── */
+  /* Stop */
   btnStop.addEventListener('click', function () {
     cleanup();
     video.removeAttribute('src');
@@ -766,383 +484,19 @@
     showLoading(false);
   });
 
+  /* Enter to play */
   inpUrl.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') btnPlay.click();
   });
 
+  /* Video state */
   video.addEventListener('playing', function () { showLoading(false); });
   video.addEventListener('waiting', function () { showLoading(true); });
   video.addEventListener('canplay', function () { showLoading(false); });
+
+  /* Auto-hide mask on first touch of video */
   video.addEventListener('play', function () { mask.classList.add('hidden'); });
-
-  /* ══════════════════════════════════════════
-     ── Download Engine ──
-     ══════════════════════════════════════════ */
-
-  /* Resolve relative URL against a base */
-  function resolveUrl(base, rel) {
-    if (!rel) return '';
-    if (/^https?:\/\//i.test(rel)) return rel;
-    try {
-      return new URL(rel, base).href;
-    } catch (e) {
-      // fallback simple
-      if (rel.charAt(0) === '/') {
-        var u = new URL(base);
-        return u.origin + rel;
-      }
-      return base.replace(/\/[^\/]*$/, '/') + rel;
-    }
-  }
-
-  /* Parse a media-level M3U8 text → { segments: [{url, duration}], key: {uri, iv, method}, totalDuration } */
-  function parseMediaPlaylist(text, baseUrl) {
-    var lines = text.split(/\r?\n/);
-    var segments = [];
-    var currentKey = null;
-    var currentIv = null;
-    var totalDuration = 0;
-    var nextDuration = 0;
-
-    for (var i = 0; i < lines.length; i++) {
-      var line = lines[i].trim();
-      if (!line) continue;
-
-      if (line.indexOf('#EXT-X-KEY:') === 0) {
-        var methodMatch = line.match(/METHOD=([^,\s]+)/);
-        var uriMatch    = line.match(/URI="([^"]+)"/);
-        var ivMatch     = line.match(/IV=([^,\s]+)/);
-        var method = methodMatch ? methodMatch[1] : 'NONE';
-        if (method !== 'NONE' && uriMatch) {
-          currentKey = {
-            method: method,
-            uri: resolveUrl(baseUrl, uriMatch[1]),
-            iv: ivMatch ? hexToBytes(ivMatch[1]) : null
-          };
-        } else {
-          currentKey = null;
-        }
-      }
-
-      if (line.indexOf('#EXTINF:') === 0) {
-        var dur = parseFloat(line.split(':')[1]);
-        if (!isNaN(dur)) nextDuration = dur;
-      }
-
-      if (line.charAt(0) !== '#') {
-        // It's a segment URI
-        segments.push({
-          url: resolveUrl(baseUrl, line),
-          duration: nextDuration,
-          key: currentKey
-        });
-        totalDuration += nextDuration;
-        nextDuration = 0;
-      }
-    }
-
-    return { segments: segments, totalDuration: totalDuration };
-  }
-
-  /* Check if this is a master playlist (has STREAM-INF) */
-  function isMasterPlaylist(text) {
-    return text.indexOf('#EXT-X-STREAM-INF:') !== -1;
-  }
-
-  /* Parse master playlist → pick best quality variant URL */
-  function parseMasterPlaylist(text, baseUrl) {
-    var lines = text.split(/\r?\n/);
-    var variants = [];
-    var nextBandwidth = 0;
-
-    for (var i = 0; i < lines.length; i++) {
-      var line = lines[i].trim();
-      if (line.indexOf('#EXT-X-STREAM-INF:') === 0) {
-        var bwMatch = line.match(/BANDWIDTH=(\d+)/);
-        nextBandwidth = bwMatch ? parseInt(bwMatch[1], 10) : 0;
-      }
-      if (line && line.charAt(0) !== '#') {
-        variants.push({ url: resolveUrl(baseUrl, line), bandwidth: nextBandwidth });
-        nextBandwidth = 0;
-      }
-    }
-
-    // Pick highest bandwidth
-    variants.sort(function (a, b) { return b.bandwidth - a.bandwidth; });
-    return variants.length ? variants[0].url : null;
-  }
-
-  /* Hex string → Uint8Array (for AES IV) */
-  function hexToBytes(hex) {
-    hex = hex.replace(/^0x/i, '');
-    var bytes = new Uint8Array(hex.length / 2);
-    for (var i = 0; i < hex.length; i += 2) {
-      bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
-    }
-    return bytes;
-  }
-
-  /* Fetch with abort support, returns ArrayBuffer */
-  function fetchBuffer(url, abortSignal) {
-    return fetch(url, { signal: abortSignal }).then(function (res) {
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      return res.arrayBuffer();
-    });
-  }
-
-  /* AES-128 decrypt ArrayBuffer using CryptoKey, with IV */
-  async function aesDecrypt(cipherBuf, cryptoKey, iv) {
-    var plainBuf = await crypto.subtle.decrypt(
-      { name: 'AES-CBC', iv: iv },
-      cryptoKey,
-      cipherBuf
-    );
-    return new Uint8Array(plainBuf);
-  }
-
-  /* Format bytes */
-  function fmtBytes(b) {
-    if (b < 1024) return b + ' B';
-    if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
-    if (b < 1073741824) return (b / 1048576).toFixed(1) + ' MB';
-    return (b / 1073741824).toFixed(2) + ' GB';
-  }
-
-  /* Extract a human-readable filename from URL */
-  function filenameFromUrl(url) {
-    try {
-      var u = new URL(url);
-      var path = u.pathname;
-      var name = path.substring(path.lastIndexOf('/') + 1);
-      if (name && name.indexOf('.m3u8') !== -1) {
-        return name.replace(/\.m3u8$/i, '.ts');
-      }
-    } catch (e) {}
-    return 'stream.ts';
-  }
-
-  /* ── Main download flow ── */
-  function startDownload() {
-    if (downloading) return;
-
-    var m3u8Text = '';
-    var baseUrl = '';
-
-    if (mode === 'url') {
-      baseUrl = inpUrl.value.trim();
-      if (!baseUrl) { showToast('请输入链接', 'error'); return; }
-      dlFileName = filenameFromUrl(baseUrl);
-    } else {
-      m3u8Text = inpText.value.trim();
-      if (!m3u8Text) { showToast('请粘贴 M3U8 文本', 'error'); return; }
-      if (m3u8Text.indexOf('#EXTM3U') === -1) {
-        showToast('缺少 #EXTM3U 标记', 'error'); return;
-      }
-      dlFileName = 'stream.ts';
-    }
-
-    downloading = true;
-    dlResultBlob = null;
-    dlAbort = new AbortController();
-    dlErrors.textContent = '';
-    dlErrors.classList.remove('visible');
-    dlDecryptBadge.style.display = 'none';
-
-    // Show panel
-    dlPanel.classList.add('visible');
-    dlProgressArea.style.display = 'block';
-    dlComplete.style.display = 'none';
-    dlFill.style.width = '0%';
-    dlCount.textContent = '0';
-    dlTotal.textContent = '...';
-    dlSize.textContent = '0 MB';
-
-    showToast('开始下载...', 'ok');
-
-    (async function () {
-      try {
-        var m3u8Content = m3u8Text;
-        var mediaBaseUrl = baseUrl;
-
-        // If URL mode, fetch the m3u8
-        if (mode === 'url') {
-          var resp = await fetch(baseUrl, { signal: dlAbort.signal });
-          if (!resp.ok) throw new Error('获取 M3U8 失败: HTTP ' + resp.status);
-          m3u8Content = await resp.text();
-          mediaBaseUrl = baseUrl;
-        }
-
-        // Check if master → resolve best variant
-        if (isMasterPlaylist(m3u8Content)) {
-          var variantUrl = parseMasterPlaylist(m3u8Content, mediaBaseUrl);
-          if (!variantUrl) throw new Error('无法解析 Master Playlist');
-          showToast('已选择最高画质变体', 'ok');
-          var vResp = await fetch(variantUrl, { signal: dlAbort.signal });
-          if (!vResp.ok) throw new Error('获取变体失败: HTTP ' + vResp.status);
-          m3u8Content = await vResp.text();
-          mediaBaseUrl = variantUrl;
-        }
-
-        var parsed = parseMediaPlaylist(m3u8Content, mediaBaseUrl);
-        if (!parsed.segments.length) throw new Error('未找到任何分片');
-
-        var segs = parsed.segments;
-        dlTotal.textContent = segs.length;
-
-        // Pre-fetch key if needed
-        var keyCache = {};
-        var hasEncryption = false;
-
-        for (var si = 0; si < segs.length; si++) {
-          if (segs[si].key && segs[si].key.method !== 'NONE') {
-            hasEncryption = true;
-            break;
-          }
-        }
-
-        if (hasEncryption) {
-          dlDecryptBadge.style.display = 'inline-flex';
-        }
-
-        // Download all segments
-        var chunks = [];
-        var totalBytes = 0;
-        var errList = [];
-        var BATCH = 4; // parallelism
-
-        for (var batchStart = 0; batchStart < segs.length; batchStart += BATCH) {
-          if (dlAbort.signal.aborted) throw new Error('下载已取消');
-
-          var batchEnd = Math.min(batchStart + BATCH, segs.length);
-          var promises = [];
-
-          for (var bi = batchStart; bi < batchEnd; bi++) {
-            (function (idx) {
-              promises.push(
-                fetchBuffer(segs[idx].url, dlAbort.signal).then(function (buf) {
-                  return { idx: idx, buf: buf, err: null };
-                }).catch(function (e) {
-                  return { idx: idx, buf: null, err: e.message };
-                })
-              );
-            })(bi);
-          }
-
-          var results = await Promise.all(promises);
-
-          // Sort by index to maintain order
-          results.sort(function (a, b) { return a.idx - b.idx; });
-
-          for (var ri = 0; ri < results.length; ri++) {
-            var r = results[ri];
-            if (r.err) {
-              errList.push('分片 ' + (r.idx + 1) + ': ' + r.err);
-              // Push empty chunk so indices still align
-              chunks.push(new Uint8Array(0));
-            } else {
-              var data = new Uint8Array(r.buf);
-
-              // Decrypt if needed
-              var seg = segs[r.idx];
-              if (seg.key && seg.key.method !== 'NONE') {
-                try {
-                  var keyUri = seg.key.uri;
-                  if (!keyCache[keyUri]) {
-                    var keyBuf = await fetchBuffer(keyUri, dlAbort.signal);
-                    keyCache[keyUri] = await crypto.subtle.importKey(
-                      'raw', keyBuf, { name: 'AES-CBC' }, false, ['decrypt']
-                    );
-                  }
-                  var iv = seg.key.iv;
-                  if (!iv) {
-                    // Default IV: segment index as big-endian 128-bit
-                    iv = new Uint8Array(16);
-                    var view = new DataView(iv.buffer);
-                    view.setUint32(12, r.idx, false);
-                  }
-                  data = await aesDecrypt(data, keyCache[keyUri], iv);
-                } catch (de) {
-                  errList.push('分片 ' + (r.idx + 1) + ' 解密失败: ' + de.message);
-                }
-              }
-
-              totalBytes += data.length;
-              chunks.push(data);
-            }
-
-            dlCount.textContent = Math.min(r.idx + 1, segs.length);
-            dlFill.style.width = ((r.idx + 1) / segs.length * 100).toFixed(1) + '%';
-            dlSize.textContent = fmtBytes(totalBytes);
-          }
-        }
-
-        // Merge all chunks
-        var merged = new Uint8Array(totalBytes);
-        var offset = 0;
-        for (var mi = 0; mi < chunks.length; mi++) {
-          merged.set(chunks[mi], offset);
-          offset += chunks[mi].length;
-        }
-
-        dlResultBlob = new Blob([merged], { type: 'video/mp2t' });
-
-        // Show complete state
-        dlProgressArea.style.display = 'none';
-        dlComplete.style.display = 'flex';
-        dlFinalSize.textContent = fmtBytes(dlResultBlob.size);
-
-        if (errList.length) {
-          dlErrors.textContent = errList.join('\n');
-          dlErrors.classList.add('visible');
-          // Re-show progress area below complete for errors
-          dlProgressArea.style.display = 'block';
-          dlFill.style.width = '100%';
-          dlFill.style.background = 'var(--red)';
-        }
-
-        showToast('下载完成 · ' + fmtBytes(dlResultBlob.size), 'ok');
-        downloading = false;
-
-      } catch (e) {
-        if (e.name === 'AbortError' || dlAbort.signal.aborted) {
-          showToast('下载已取消', 'error');
-        } else {
-          showToast('下载失败: ' + e.message, 'error');
-        }
-        downloading = false;
-        dlPanel.classList.remove('visible');
-      }
-    })();
-  }
-
-  /* Cancel download */
-  dlCancel.addEventListener('click', function () {
-    if (dlAbort) dlAbort.abort();
-  });
-
-  /* Save file */
-  dlSave.addEventListener('click', function () {
-    if (!dlResultBlob) return;
-    var a = document.createElement('a');
-    a.href = URL.createObjectURL(dlResultBlob);
-    a.download = dlFileName;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(function () {
-      URL.revokeObjectURL(a.href);
-      document.body.removeChild(a);
-    }, 100);
-  });
-
-  /* Download button */
-  btnDl.addEventListener('click', function () {
-    if (downloading) { showToast('正在下载中', 'error'); return; }
-    startDownload();
-  });
-
-  /* Pre-fill */
-  inpUrl.value = 'https://amcdngt677t.zmnnzb22.cn/files/few/f6a44b707e4b07c7d3df5f476/6a44b563e4b07c7d3df5f46e.m3u8?sign=2223bf05aa996fe128d429b1dff86444&t=1784263180';
-
+  
 })();
 </script>
 
