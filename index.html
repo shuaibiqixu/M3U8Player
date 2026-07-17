@@ -331,7 +331,6 @@
   <div class="input-area hidden" id="area-text">
     <div class="field-label">M3U8 文本</div>
     <textarea class="field-textarea" id="inp-text" placeholder="#EXTM3U&#10;#EXT-X-VERSION:3&#10;#EXT-X-KEY:METHOD=AES-128,URI=&quot;https://...&quot;,IV=0x00000000000000000000000000000000&#10;#EXTINF:8.333,&#10;https://...00000.ts&#10;#EXT-X-ENDLIST"></textarea>
-    <div class="field-hint">所有 URI 须为完整绝对地址</div>
   </div>
 
   <div class="actions">
@@ -442,12 +441,7 @@
     showLoading(true);
     mask.classList.remove('hidden');
 
-    if (!Hls.isSupported()) {
-      showLoading(false);
-      showToast('文本模式需要现代浏览器', 'error');
-      return;
-    }
-
+ 
     var blob    = new Blob([text], { type: 'application/vnd.apple.mpegurl' });
     var blobUrl = URL.createObjectURL(blob);
     blobUrls.push(blobUrl);
